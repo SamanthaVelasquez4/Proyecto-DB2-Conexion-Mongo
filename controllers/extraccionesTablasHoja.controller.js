@@ -11,6 +11,8 @@ const dbConfig = require('../utils/databaseOracle');
 
 extraccionesTablasHojas.zonasRestringidas = async()=>{
 
+    bandera = true;
+
     // Hacer la conexión
     const connection = await oracledb.getConnection(dbConfig);
 
@@ -52,9 +54,9 @@ extraccionesTablasHojas.zonasRestringidas = async()=>{
         }
     } catch (error) {
 
+        bandera = false;
+
         await connection.execute('ROLLBACK', [], options);
-        // Cerrar la conexión después de obtener los datos
-        await connection.close();
         
         //Hacer log
         const secuenciaSQL = 
@@ -62,7 +64,30 @@ extraccionesTablasHojas.zonasRestringidas = async()=>{
             P_INSERT_LOG(P_nombre => 'EXTRACCION_ZONAS_RESTRINGIDAS',
             P_fecha_inicio => :fechaInicio,
             P_nombre_base => 'Uber',
-            P_exito => 'Fail'); 
+            P_exito => 'Fail',
+            P_error => :error); 
+        END;`;
+
+        const binds = {
+            fechaInicio: new Date(),
+            error: error.message
+        };
+
+        await connection.execute(secuenciaSQL, binds, options);
+    }
+
+    if(bandera){
+        // Hacer Commit
+        await connection.execute('COMMIT', [], options);
+
+        //Hacer log
+        const secuenciaSQL = 
+        `BEGIN
+            P_INSERT_LOG(P_nombre => 'EXTRACCION_ZONAS_RESTRINGIDAS',
+            P_fecha_inicio => :fechaInicio,
+            P_nombre_base => 'Uber',
+            P_exito => 'SUCCESS',
+            P_error => NULL); 
         END;`;
 
         const binds = {
@@ -70,35 +95,14 @@ extraccionesTablasHojas.zonasRestringidas = async()=>{
         };
 
         await connection.execute(secuenciaSQL, binds, options);
-
-        // Manejar cualquier error que ocurra durante la consulta a la base de datos
-        console.error('Error (Se hizo rollback):', error);
-        throw error; // Lanzar el error para que quien llame a esta función pueda manejarlo
     }
-
-    // Hacer Commit
-    await connection.execute('COMMIT', [], options);
-
-    //Hacer log
-    const secuenciaSQL = 
-    `BEGIN
-        P_INSERT_LOG(P_nombre => 'EXTRACCION_ZONAS_RESTRINGIDAS',
-        P_fecha_inicio => :fechaInicio,
-        P_nombre_base => 'Uber',
-        P_exito => 'SUCCESS'); 
-    END;`;
-
-    const binds = {
-        fechaInicio: new Date(),
-    };
-
-    await connection.execute(secuenciaSQL, binds, options);
 
     // Cerrar la conexión 
     await connection.close();
 };
 
 extraccionesTablasHojas.historicoUber = async()=>{
+    var badera= true;
     var hoy = new Date(); // Obtener la fecha de hoy
     var ayer = new Date(hoy); // Crear una copia de la fecha de hoy
     ayer.setDate(hoy.getDate() - 1); // Restar 1 día para obtener la fecha de ayer
@@ -172,9 +176,9 @@ extraccionesTablasHojas.historicoUber = async()=>{
             
     } catch (error) {
 
+        bandera = false;
+
         await connection.execute('ROLLBACK', [], options);
-        // Cerrar la conexión después de obtener los datos
-        await connection.close();
 
         //Hacer log
         const secuenciaSQL = 
@@ -182,7 +186,30 @@ extraccionesTablasHojas.historicoUber = async()=>{
             P_INSERT_LOG(P_nombre => 'EXTRACCION_HISTORICO_UBERS',
             P_fecha_inicio => :fechaInicio,
             P_nombre_base => 'Uber',
-            P_exito => 'Fail'); 
+            P_exito => 'Fail',
+            P_error => :error); 
+        END;`;
+
+        const binds = {
+            fechaInicio: hoy,
+            error: error.message
+        };
+
+        await connection.execute(secuenciaSQL, binds, options);
+    }
+
+    if(bandera){
+        // Hacer Commit
+        await connection.execute('COMMIT', [], options);
+
+        //Hacer log
+        const secuenciaSQL = 
+        `BEGIN
+            P_INSERT_LOG(P_nombre => 'EXTRACCION_HISTORICO_UBERS',
+            P_fecha_inicio => :fechaInicio,
+            P_nombre_base => 'Uber',
+            P_exito => 'SUCCESS',
+            P_error => NULL); 
         END;`;
 
         const binds = {
@@ -190,29 +217,7 @@ extraccionesTablasHojas.historicoUber = async()=>{
         };
 
         await connection.execute(secuenciaSQL, binds, options);
-        
-        // Manejar cualquier error que ocurra durante la consulta a la base de datos
-        console.error('Error (Se hizo rollback):', error);
-        throw error; // Lanzar el error para que quien llame a esta función pueda manejarlo
     }
-
-    // Hacer Commit
-    await connection.execute('COMMIT', [], options);
-
-    //Hacer log
-    const secuenciaSQL = 
-    `BEGIN
-        P_INSERT_LOG(P_nombre => 'EXTRACCION_HISTORICO_UBERS',
-        P_fecha_inicio => :fechaInicio,
-        P_nombre_base => 'Uber',
-        P_exito => 'SUCCESS'); 
-    END;`;
-
-    const binds = {
-        fechaInicio: hoy,
-    };
-
-    await connection.execute(secuenciaSQL, binds, options);
 
     // Cerrar la conexión 
     await connection.close();

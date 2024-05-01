@@ -13,6 +13,7 @@ const dbConfig = require('../utils/databaseOracle');
 
 extraccionesTablasTransaccionales.clientes = async()=>{
 
+    bandera = true;
     var hoy = new Date(); // Obtener la fecha de hoy
     var ayer = new Date(hoy); // Crear una copia de la fecha de hoy
     ayer.setDate(hoy.getDate() - 1); // Restar 1 día para obtener la fecha de ayer
@@ -90,9 +91,9 @@ extraccionesTablasTransaccionales.clientes = async()=>{
 
     } catch (error) {
 
+        bandera = false;
+
         await connection.execute('ROLLBACK', [], options);
-        // Cerrar la conexión después de obtener los datos
-        await connection.close();
 
         //Hacer log
         const secuenciaSQL = 
@@ -100,7 +101,30 @@ extraccionesTablasTransaccionales.clientes = async()=>{
             P_INSERT_LOG(P_nombre => 'EXTRACCION_CLIENTES',
             P_fecha_inicio => :fechaInicio,
             P_nombre_base => 'Uber',
-            P_exito => 'Fail'); 
+            P_exito => 'Fail',
+            P_error => :error); 
+        END;`;
+
+        const binds = {
+            fechaInicio: hoy,
+            error: error.message
+        };
+        
+        await connection.execute(secuenciaSQL, binds, options);
+    }
+
+    if(bandera){
+        // Hacer Commit
+        await connection.execute('COMMIT', [], options);
+
+        //Hacer log
+        const secuenciaSQL = 
+        `BEGIN
+            P_INSERT_LOG(P_nombre => 'EXTRACCION_CLIENTES',
+            P_fecha_inicio => :fechaInicio,
+            P_nombre_base => 'Uber',
+            P_exito => 'SUCCESS',
+            P_ERROR => NULL); 
         END;`;
 
         const binds = {
@@ -109,28 +133,7 @@ extraccionesTablasTransaccionales.clientes = async()=>{
         
         await connection.execute(secuenciaSQL, binds, options);
         
-        // Manejar cualquier error que ocurra durante la consulta a la base de datos
-        console.error('Error (Se hizo rollback):', error);
-        throw error; // Lanzar el error para que quien llame a esta función pueda manejarlo
     }
-
-    // Hacer Commit
-    await connection.execute('COMMIT', [], options);
-
-    //Hacer log
-    const secuenciaSQL = 
-    `BEGIN
-        P_INSERT_LOG(P_nombre => 'EXTRACCION_CLIENTES',
-        P_fecha_inicio => :fechaInicio,
-        P_nombre_base => 'Uber',
-        P_exito => 'SUCCESS'); 
-    END;`;
-
-    const binds = {
-        fechaInicio: hoy,
-    };
-    
-    await connection.execute(secuenciaSQL, binds, options);
 
     // Cerrar la conexión 
     await connection.close();
@@ -138,6 +141,7 @@ extraccionesTablasTransaccionales.clientes = async()=>{
 
 extraccionesTablasTransaccionales.conductores = async()=>{
 
+    bandera = true;
     var hoy = new Date(); // Obtener la fecha de hoy
     var ayer = new Date(hoy); // Crear una copia de la fecha de hoy
     ayer.setDate(hoy.getDate() - 1); // Restar 1 día para obtener la fecha de ayer
@@ -216,9 +220,9 @@ extraccionesTablasTransaccionales.conductores = async()=>{
 
     } catch (error) {
 
+        bandera=false;
+
         await connection.execute('ROLLBACK', [], options);
-        // Cerrar la conexión después de obtener los datos
-        await connection.close();
 
         //Hacer log
         const secuenciaSQL = 
@@ -226,7 +230,30 @@ extraccionesTablasTransaccionales.conductores = async()=>{
             P_INSERT_LOG(P_nombre => 'EXTRACCION_CONDUCTORES',
             P_fecha_inicio => :fechaInicio,
             P_nombre_base => 'Uber',
-            P_exito => 'Fail'); 
+            P_exito => 'Fail',
+            P_error => :error); 
+        END;`;
+
+        const binds = {
+            fechaInicio: hoy,
+            error: error.message
+        };
+
+        await connection.execute(secuenciaSQL, binds, options);
+    }
+
+    if(bandera){
+        // Hacer Commit
+        await connection.execute('COMMIT', [], options);
+
+        //Hacer log
+        const secuenciaSQL = 
+        `BEGIN
+            P_INSERT_LOG(P_nombre => 'EXTRACCION_CONDUCTORES',
+            P_fecha_inicio => :fechaInicio,
+            P_nombre_base => 'Uber',
+            P_exito => 'SUCCESS',
+            P_error => NULL); 
         END;`;
 
         const binds = {
@@ -234,29 +261,7 @@ extraccionesTablasTransaccionales.conductores = async()=>{
         };
 
         await connection.execute(secuenciaSQL, binds, options);
-        
-        // Manejar cualquier error que ocurra durante la consulta a la base de datos
-        console.error('Error (Se hizo rollback):', error);
-        throw error; // Lanzar el error para que quien llame a esta función pueda manejarlo
     }
-
-    // Hacer Commit
-    await connection.execute('COMMIT', [], options);
-
-    //Hacer log
-    const secuenciaSQL = 
-    `BEGIN
-        P_INSERT_LOG(P_nombre => 'EXTRACCION_CONDUCTORES',
-        P_fecha_inicio => :fechaInicio,
-        P_nombre_base => 'Uber',
-        P_exito => 'SUCCESS'); 
-    END;`;
-
-    const binds = {
-        fechaInicio: hoy,
-    };
-
-    await connection.execute(secuenciaSQL, binds, options);
 
     // Cerrar la conexión 
     await connection.close();
@@ -264,6 +269,7 @@ extraccionesTablasTransaccionales.conductores = async()=>{
 
 extraccionesTablasTransaccionales.carreras = async()=>{
 
+    bander = true;
     var hoy = new Date(); // Obtener la fecha de hoy
     var ayer = new Date(hoy); // Crear una copia de la fecha de hoy
     ayer.setDate(hoy.getDate() - 1); // Restar 1 día para obtener la fecha de ayer
@@ -351,9 +357,9 @@ extraccionesTablasTransaccionales.carreras = async()=>{
 
     } catch (error) {
 
+        bandera = false;
+
         await connection.execute('ROLLBACK', [], options);
-        // Cerrar la conexión después de obtener los datos
-        await connection.close();
 
         //Hacer log
         const secuenciaSQL = 
@@ -361,7 +367,31 @@ extraccionesTablasTransaccionales.carreras = async()=>{
             P_INSERT_LOG(P_nombre => 'EXTRACCION_CARRERAS',
             P_fecha_inicio => :fechaInicio,
             P_nombre_base => 'Uber',
-            P_exito => 'Fail'); 
+            P_exito => 'Fail',
+            P_error => :error); 
+        END;`;
+
+        const binds = {
+            fechaInicio: hoy,
+            error: error.message,
+        };
+
+        await connection.execute(secuenciaSQL, binds, options);
+    }
+
+    if(bandera){
+
+        // Hacer Commit
+        await connection.execute('COMMIT', [], options);
+
+        //Hacer log
+        const secuenciaSQL = 
+        `BEGIN
+            P_INSERT_LOG(P_nombre => 'EXTRACCION_CARRERAS',
+            P_fecha_inicio => :fechaInicio,
+            P_nombre_base => 'Uber',
+            P_exito => 'SUCCESS',
+            P_error => NULL); 
         END;`;
 
         const binds = {
@@ -369,29 +399,7 @@ extraccionesTablasTransaccionales.carreras = async()=>{
         };
 
         await connection.execute(secuenciaSQL, binds, options);
-        
-        // Manejar cualquier error que ocurra durante la consulta a la base de datos
-        console.error('Error (Se hizo rollback):', error);
-        throw error; // Lanzar el error para que quien llame a esta función pueda manejarlo
     }
-
-    // Hacer Commit
-    await connection.execute('COMMIT', [], options);
-
-    //Hacer log
-    const secuenciaSQL = 
-    `BEGIN
-        P_INSERT_LOG(P_nombre => 'EXTRACCION_CARRERAS',
-        P_fecha_inicio => :fechaInicio,
-        P_nombre_base => 'Uber',
-        P_exito => 'SUCCESS'); 
-    END;`;
-
-    const binds = {
-        fechaInicio: hoy,
-    };
-
-    await connection.execute(secuenciaSQL, binds, options);
 
     // Cerrar la conexión 
     await connection.close();
@@ -399,6 +407,7 @@ extraccionesTablasTransaccionales.carreras = async()=>{
 
 extraccionesTablasTransaccionales.comentarios = async()=>{
 
+    bandera = true;
     var hoy = new Date(); // Obtener la fecha de hoy
     var ayer = new Date(hoy); // Crear una copia de la fecha de hoy
     ayer.setDate(hoy.getDate() - 1); // Restar 1 día para obtener la fecha de ayer
@@ -471,9 +480,9 @@ extraccionesTablasTransaccionales.comentarios = async()=>{
 
     } catch (error) {
 
+        bandera=false;
+
         await connection.execute('ROLLBACK', [], options);
-        // Cerrar la conexión después de obtener los datos
-        await connection.close();
         
         //Hacer log
         const secuenciaSQL = 
@@ -481,7 +490,31 @@ extraccionesTablasTransaccionales.comentarios = async()=>{
             P_INSERT_LOG(P_nombre => 'EXTRACCION_COMENTARIOS',
             P_fecha_inicio => :fechaInicio,
             P_nombre_base => 'Uber',
-            P_exito => 'Fail'); 
+            P_exito => 'Fail',
+            P_error => :error); 
+        END;`;
+
+        const binds = {
+            fechaInicio: hoy,
+            error: error.message
+        };
+
+        await connection.execute(secuenciaSQL, binds, options);
+    }
+
+    if(bandera){
+        
+        // Hacer Commit
+        await connection.execute('COMMIT', [], options);
+
+        //Hacer log
+        const secuenciaSQL = 
+        `BEGIN
+            P_INSERT_LOG(P_nombre => 'EXTRACCION_COMENTARIOS',
+            P_fecha_inicio => :fechaInicio,
+            P_nombre_base => 'Uber',
+            P_exito => 'SUCCESS',
+            P_error => NULL); 
         END;`;
 
         const binds = {
@@ -489,29 +522,7 @@ extraccionesTablasTransaccionales.comentarios = async()=>{
         };
 
         await connection.execute(secuenciaSQL, binds, options);
-
-        // Manejar cualquier error que ocurra durante la consulta a la base de datos
-        console.error('Error (Se hizo rollback):', error);
-        throw error; // Lanzar el error para que quien llame a esta función pueda manejarlo
     }
-
-    // Hacer Commit
-    await connection.execute('COMMIT', [], options);
-
-    //Hacer log
-    const secuenciaSQL = 
-    `BEGIN
-        P_INSERT_LOG(P_nombre => 'EXTRACCION_COMENTARIOS',
-        P_fecha_inicio => :fechaInicio,
-        P_nombre_base => 'Uber',
-        P_exito => 'SUCCESS'); 
-    END;`;
-
-    const binds = {
-        fechaInicio: hoy,
-    };
-
-    await connection.execute(secuenciaSQL, binds, options);
 
     // Cerrar la conexión 
     await connection.close();
