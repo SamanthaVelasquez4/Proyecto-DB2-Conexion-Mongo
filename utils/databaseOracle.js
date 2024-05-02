@@ -1,5 +1,5 @@
 module.exports = {
     user: "C##DWH",
     password: 'oracle',
-    connectString: "localhost/xe",
+    connectString: "localhost:1522/free",
 };
