@@ -832,7 +832,7 @@ funcionesTransaccionales.llenarCarrerasComentarios = async() =>{
         zonasRestringidas = await zonasRestringidaSchema.find({}, {_id:false});
         //console.log(zonasRestringidas);
 
-        for (var i = 0; i <1000; i++) {
+        for (var i = 0; i <1200; i++) {
           //ubicacion de inicio
           do {
               banderaUbicacionInicio = false;
